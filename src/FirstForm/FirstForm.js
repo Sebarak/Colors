@@ -1,48 +1,69 @@
-import {Component} from "react";
+import {useState} from "react";
 
-class FirstForm extends Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            newColor: ''
-        };
+const FirstForm = () =>{
+    const [value,setValue] = useState('');
+    const [hash,setHash] = useState('');
+
+    const handleChange = (event) => {
+        let valueValid = /[^a-fA-F0-9]/;
+        let replacer = '';
+        setHash('#');
+        setValue(event.target.value.replace(valueValid, replacer));
     }
 
-    // handleChange(event){
-    //     const hex = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
-    //     const color = [...event.target.value];
-    //
-    //     color.forEach(el=>{
-    //         hex.forEach(str=>{
-    //             if (el===str){
-    //                 this.setState(()=>({
-    //                     newColor: event.target.value
-    //                 }))
-    //             }
-    //         })
-    //     })
-    // }
-
-    handleKeyDown(event){
-        if (event.key === 'a'){
-            console.log('siu');
+    const backspace = (event) =>{
+            if (event.key === 'Backspace'){
+                if (value === ''){
+                    setHash('');
+                }
         }
     }
 
-    handleAdd(event){
+    const handleAdd = (event) => {
         event.preventDefault();
+        const storageColors = JSON.parse(localStorage.getItem('Colors'));
+        const newColor = ['#'];
+        let duplicate = false;
 
+        const addColor = color => {
+            storageColors.forEach(colors => {
+                if (colors === color){
+                    duplicate = true;
+                }
+            });
+
+            if (duplicate === true){
+                localStorage.setItem('Colors',JSON.stringify(storageColors));
+            }else{
+                storageColors.push(color);
+                localStorage.setItem('Colors',JSON.stringify(storageColors));
+                setValue('');
+                setHash('');
+            }
+        }
+
+        if (value.length === 3){
+            [...value].forEach(letter=>{
+                newColor.push(letter,letter);
+            })
+
+            addColor(newColor.join(''));
+
+        }else if(value.length === 6){
+            newColor.push(value);
+
+            addColor(newColor.join(''));
+        }
     }
 
-    render() {
         return(
-            <form onSubmit={this.handleAdd}>
+            <form onSubmit={handleAdd}>
                 <h2>Add Your Color</h2>
-                <input type="text" value={this.state.newColor} onKeyDown={this.handleKeyDown}/>
+                <div className='hash'>{hash}</div>
+                <input type="text" value={value} onKeyDown={e=>{backspace(e)}} onChange={e=>{handleChange(e)}} maxLength='6' placeholder='Enter...'/>
                 <button>+</button>
             </form>
         )
-    }
 }
 
 export {FirstForm}
