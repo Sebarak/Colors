@@ -36,7 +36,7 @@ class FirstForm extends Component {
 
         const addColor = color => {
             storageColors.forEach(colors => {
-                if (colors === color) {
+                if (colors === color.toUpperCase()) {
                     duplicate = true;
                 }
             });
@@ -44,7 +44,7 @@ class FirstForm extends Component {
             if (duplicate === true) {
                 localStorage.setItem('Colors', JSON.stringify(storageColors));
             } else {
-                storageColors.push(color);
+                storageColors.push(color.toUpperCase());
                 localStorage.setItem('Colors', JSON.stringify(storageColors));
                 this.setState({value: '', hash: ''})
                 this.props.quantity(storageColors.length);
