@@ -3,11 +3,44 @@ import {useEffect, useState} from "react";
 const List = ({basicColors, quantity}) => {
     const [listOfColors, setListOfColors] = useState([]);
 
-    useEffect(()  => {
+    useEffect(()=>{
         const storageColors = JSON.parse(localStorage.getItem('Colors'));
 
         setListOfColors(storageColors);
+    },[quantity])
 
+    useEffect(() => {
+        if (listOfColors.length !== 0) {
+            const sortColors = listOfColors;
+            const sorting = [];
+            const sortedHEX = []
+
+            sortColors.forEach(a => {
+                const rgb = a.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+                    , (m, r, g, b) => '#' + r + r + g + g + b + b)
+                    .substring(1).match(/.{2}/g)
+                    .map(x => parseInt(x, 16));
+
+                sorting.push(rgb);
+            });
+            const rgbToHex = (r, g, b) => '#' + [r, g, b]
+                .map(x => x.toString(16).padStart(2, '0')).join('')
+
+            for (let i = 0; i<2;i++) {
+                sorting.sort((a, b) => (b - a)).forEach(rgbColor => {
+
+                    sortedHEX.push(rgbToHex(...rgbColor).toUpperCase());
+                })
+            }
+            // console.log(sortedHEX);
+            setListOfColors(sortedHEX);
+        }
+        const styleSheet = document.styleSheets[0];
+        for (let i = 0; i < styleSheet.cssRules.length; i++) {
+            if (styleSheet.cssRules[i].cssText.indexOf('.picker_') === 0) {
+                styleSheet.deleteRule(i);
+            }
+        }
         listOfColors.forEach((color, index) => {
             const padZero = (str, len = 2) => {
                 let zeros = new Array(len).join('0');
@@ -40,7 +73,7 @@ const List = ({basicColors, quantity}) => {
                         border-right: 1px solid ${invertColor}
                         }`, 0);
         });
-    }, [quantity, listOfColors]);
+    }, [listOfColors])
 
     const handleDelete = (event) => {
         const newArrayOfColors = listOfColors.filter(color => {
@@ -48,11 +81,10 @@ const List = ({basicColors, quantity}) => {
         })
 
         localStorage.setItem('Colors', JSON.stringify(newArrayOfColors));
-        const styleSheet = document.styleSheets[0];
-        console.log(styleSheet.cssRules)
 
         setListOfColors(newArrayOfColors);
 
+        window.location.reload();
     }
 
     return (
