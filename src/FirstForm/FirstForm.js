@@ -1,25 +1,30 @@
-import {useState} from "react";
+import {Component} from "react";
 
-const FirstForm = () =>{
-    const [value,setValue] = useState('');
-    const [hash,setHash] = useState('');
+class FirstForm extends Component {
+    constructor(props) {
+        super(props);
 
-    const handleChange = (event) => {
-        let valueValid = /[^a-fA-F0-9]/;
-        let replacer = '';
-        setHash('#');
-        setValue(event.target.value.replace(valueValid, replacer));
-    }
-
-    const backspace = (event) =>{
-            if (event.key === 'Backspace'){
-                if (value === ''){
-                    setHash('');
-                }
+        this.state = {
+            value: '',
+            hash: ''
         }
     }
 
-    const handleAdd = (event) => {
+    handleChange(event) {
+        let valueValid = /[^a-fA-F0-9]/;
+        let replacer = '';
+        this.setState({value: event.target.value.replace(valueValid, replacer), hash: '#'})
+    }
+
+    backspace(event) {
+        if (event.key === 'Backspace') {
+            if (this.state.value === '') {
+                this.setState({hash: ''});
+            }
+        }
+    }
+
+    handleAdd(event) {
         event.preventDefault();
         const storageColors = JSON.parse(localStorage.getItem('Colors'));
         const newColor = ['#'];
@@ -27,43 +32,48 @@ const FirstForm = () =>{
 
         const addColor = color => {
             storageColors.forEach(colors => {
-                if (colors === color){
+                if (colors === color) {
                     duplicate = true;
                 }
             });
 
-            if (duplicate === true){
-                localStorage.setItem('Colors',JSON.stringify(storageColors));
-            }else{
+            if (duplicate === true) {
+                localStorage.setItem('Colors', JSON.stringify(storageColors));
+            } else {
                 storageColors.push(color);
-                localStorage.setItem('Colors',JSON.stringify(storageColors));
-                setValue('');
-                setHash('');
+                localStorage.setItem('Colors', JSON.stringify(storageColors));
+                this.setState({value: '', hash: ''})
             }
         }
 
-        if (value.length === 3){
-            [...value].forEach(letter=>{
-                newColor.push(letter,letter);
+        if (this.state.value.length === 3) {
+            [...this.state.value].forEach(letter => {
+                newColor.push(letter, letter);
             })
 
             addColor(newColor.join(''));
 
-        }else if(value.length === 6){
-            newColor.push(value);
+        } else if (this.state.value.length === 6) {
+            newColor.push(this.state.value);
 
             addColor(newColor.join(''));
         }
     }
 
-        return(
-            <form onSubmit={handleAdd}>
-                <h2>Add Your Color</h2>
-                <div className='hash'>{hash}</div>
-                <input type="text" value={value} onKeyDown={e=>{backspace(e)}} onChange={e=>{handleChange(e)}} maxLength='6' placeholder='Enter...'/>
-                <button>+</button>
+    render() {
+        return (
+            <form onSubmit={this.handleAdd.bind(this)} className='add_form'>
+                <h2 className='add_form_title'>Add Your Color</h2>
+                <div className='add_form_hash'>{this.state.hash}</div>
+                <input type="text" className='add_form_input'
+                       value={this.state.value}
+                       onKeyDown={this.backspace.bind(this)}
+                       onChange={this.handleChange.bind(this)}
+                       maxLength='6' placeholder='Enter...'/>
+                <button className='add_form_submit'>+</button>
             </form>
         )
+    }
 }
 
 export {FirstForm}

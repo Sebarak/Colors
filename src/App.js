@@ -1,3 +1,4 @@
+import './style/main.scss';
 import {FirstForm} from "./FirstForm/FirstForm";
 import {useEffect} from "react";
 // import {SecondForm} from "./SecondForm/SecondForm";
