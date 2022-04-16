@@ -1,7 +1,7 @@
 import './style/main.scss';
 import {FirstForm} from "./FirstForm/FirstForm";
 import {useEffect} from "react";
-// import {SecondForm} from "./SecondForm/SecondForm";
+import {SecondForm} from "./SecondForm/SecondForm";
 // import {List} from "./List/List";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
   return (
     <div className='container'>
         <FirstForm />
-        {/*<SecondForm />*/}
+        <SecondForm />
         {/*<List />*/}
     </div>
   )
