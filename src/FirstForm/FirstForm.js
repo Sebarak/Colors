@@ -47,6 +47,7 @@ class FirstForm extends Component {
                 storageColors.push(color);
                 localStorage.setItem('Colors', JSON.stringify(storageColors));
                 this.setState({value: '', hash: ''})
+                this.props.quantity(storageColors.length);
             }
         }
 
