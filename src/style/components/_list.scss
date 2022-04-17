@@ -47,23 +47,27 @@
         width: calc(100% + 2px);
         transform: translate(-1px,-1px);
         border-radius: 0 10px 0 8px;
+        border: 1px solid;
 
         align-self: start;
+      }
+      .decorate {
 
-        &::after{
-          content: '';
+        .right_arrow {
           width: 10px;
           height: 10px;
           position: absolute;
+          border-right: 1px solid;
           right: -1px;
           top: 8px;
         }
 
-        &::before{
-          content: '';
+        .left_arrow {
           width: 28px;
           height: 10px;
           position: absolute;
+          border-right: 1px solid;
+          border-top: 1px solid;
           right: -1px;
           top: 8px;
           border-radius: 0 10px;
@@ -112,7 +116,7 @@
           color: #cc1717;
           transition: all .3s ease-in-out;
           z-index: 4;
-color: #050000;
+
           &:hover {
             background-color: #cc1717;
             color: #f0fff0;
@@ -131,7 +135,7 @@ color: #050000;
           transform: translate(1px,-1px);
           background-color: #f0fff0;
           border-right: 1px dashed rgba(0, 0, 0, 0.25);
-
+          z-index: 4;
         }
       }
     }
