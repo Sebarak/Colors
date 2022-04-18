@@ -51,30 +51,6 @@ const List = ({basicColors, quantity}) => {
 
 
     // useEffect(() => {
-    //     if (listOfColors.length !== 0) {
-    //         const sortColors = listOfColors;
-    //         const sorting = [];
-    //         const sortedHEX = []
-    //
-    //         sortColors.forEach(a => {
-    //             const rgb = a.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
-    //                 , (m, r, g, b) => '#' + r + r + g + g + b + b)
-    //                 .substring(1).match(/.{2}/g)
-    //                 .map(x => parseInt(x, 16));
-    //
-    //             sorting.push(rgb);
-    //         });
-    //
-    //         const rgbToHex = (r, g, b) => '#' + [r, g, b]
-    //             .map(x => x.toString(16).padStart(2, '0')).join('')
-    //
-    //         sorting.sort().reverse().forEach(rgbColor => {
-    //
-    //             sortedHEX.push(rgbToHex(...rgbColor).toUpperCase());
-    //         })
-    //
-    //         setListOfColors(sortedHEX);
-    //     }
         // const styleSheet = document.styleSheets[0];
         // for (let i = 0; i < styleSheet.cssRules.length; i++) {
         //     if (styleSheet.cssRules[i].cssText.indexOf('.picker_') === 0) {
