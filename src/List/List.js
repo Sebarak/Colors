@@ -8,6 +8,7 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
     const [customShortcut,setCustomShortcut] = useState([]);
     const [restList, setRestList] = useState([]);
     const [restShortcut,setRestShortcut] = useState([]);
+    const [sort, setSort] = useState([])
 
     useEffect(()=>{
         const storageColors = JSON.parse(localStorage.getItem('Colors'));
@@ -38,7 +39,20 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
             } else {
                 return (a[0] > b[0]) ? -1 : 1;
             }
-        })
+        });
+
+        setSort(hexToRGB.sort((a, b) => {
+            if (a[0] === b[0]) {
+                if (a[1] === b[1]) {
+                    return (a[2] > b[2]) ? -1 : 1;
+                } else {
+                    return (a[1] > b[1]) ? -1 : 1;
+                }
+            } else {
+                return (a[0] > b[0]) ? -1 : 1;
+            }
+        }));
+
 
         if (isGreenFiltered === false && isBlueFiltered === false && isSatFiltered === false && isRedFiltered === false) {
 
@@ -63,16 +77,213 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
         }else{
             const custom = [];
             const rest = [];
+            const hsl = [];
 
-            sortedHex.forEach(color => {
-                if ((color[0] <= 255 * maxR/100 && color[0] >= 255 * minR/100) ||
-                    (color[1] <= 255 * maxG/100 && color[1] >= 255 * minG/100) ||
-                    (color[2] <= 255 * maxB/100 && color[2] >= 255 * minB/100)){
-                    custom.push(color);
-                }else{
-                    rest.push(color);
+            const rgbToHsl = array => {array.forEach(color => {
+
+                color[0] /= 255;
+                color[1] /= 255;
+                color[2] /= 255;
+
+                let min = Math.min(color[0],color[1],color[2]),
+                    max = Math.max(color[0],color[1],color[2]),
+                    delta = max - min,
+                    h = 0,
+                    s = 0,
+                    l = 0;
+
+                if (delta === 0) {
+                    h = 0;
+
+                }else if(max === color[0]) {
+                    h = ((color[1] - color[2]) / delta) % 6;
+
+                }else if (max === color[1]) {
+                    h = (color[2] - color[0]) / delta + 2;
+
+                }else {
+                    h = (color[0] - color[1]) / delta + 4;
+
                 }
-            })
+
+                h = Math.round(h * 60);
+
+                if (h < 0) {
+                    h += 360;
+                }
+
+                l = (max + min) / 2;
+
+                s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+
+                s = +(s * 100).toFixed(1);
+                l = +(l * 100).toFixed(1);
+
+                hsl.push([h,s,l]);
+            })};
+
+            const hslToRgb = (array) => {
+                array[1] /= 100;
+                array[2] /= 100;
+
+                let c = (1 - Math.abs(2 * array[2] - 1)) * array[1],
+                    x = c * (1 - Math.abs((array[0] / 60) % 2 - 1)),
+                    m = array[2] - c/2,
+                    r = 0,
+                    g = 0,
+                    b = 0;
+
+                if (0 <= array[0] && array[0] < 60) {
+                    r = c; g = x; b = 0;
+                } else if (60 <= array[0] && array[0] < 120) {
+                    r = x; g = c; b = 0;
+                } else if (120 <= array[0] && array[0] < 180) {
+                    r = 0; g = c; b = x;
+                } else if (180 <= array[0] && array[0] < 240) {
+                    r = 0; g = x; b = c;
+                } else if (240 <= array[0] && array[0] < 300) {
+                    r = x; g = 0; b = c;
+                } else if (300 <= array[0] && array[0] < 360) {
+                    r = c; g = 0; b = x;
+                }
+                r = Math.round((r + m) * 255);
+                g = Math.round((g + m) * 255);
+                b = Math.round((b + m) * 255);
+
+                return [r,g,b];
+            }
+
+            if (isRedFiltered && !isGreenFiltered && !isBlueFiltered && !isSatFiltered) {
+                sortedHex.forEach(color => {
+                    if (color[0] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (!isRedFiltered && isGreenFiltered && !isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[1] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (!isRedFiltered && !isGreenFiltered && isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[2] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (!isRedFiltered && !isGreenFiltered && !isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach(color => {
+                    if (color[1] > 50) {
+                        custom.push(hslToRgb(color));
+                    } else {
+                        rest.push(hslToRgb(color));
+                    }
+                })
+            }else if (isRedFiltered && isGreenFiltered && !isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[0] > 127 && color[1] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (isRedFiltered && !isGreenFiltered && isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[0] > 127 && color[2] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (isRedFiltered && !isGreenFiltered && !isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][0] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (!isRedFiltered && isGreenFiltered && isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[1] > 127 && color[2] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (!isRedFiltered && isGreenFiltered && !isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][1] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (!isRedFiltered && !isGreenFiltered && isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][2] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (isRedFiltered && isGreenFiltered && isBlueFiltered && !isSatFiltered){
+                sortedHex.forEach(color => {
+                    if (color[0] > 127 && color[1] > 127 && color[2] > 127) {
+                        custom.push(color);
+                    } else {
+                        rest.push(color);
+                    }
+                })
+            }else if (isRedFiltered && isGreenFiltered && !isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][0] > 127 && sort[index][1] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (isRedFiltered && !isGreenFiltered && isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][0] > 127 && sort[index][2] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (!isRedFiltered && isGreenFiltered && isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][1] > 127 && sort[index][2] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }else if (isRedFiltered && isGreenFiltered && isBlueFiltered && isSatFiltered){
+                rgbToHsl(sortedHex);
+                hsl.forEach((color,index) => {
+                    if (color[1] > 50 && sort[index][0] > 127 && sort[index][1] > 127 && sort[index][2] > 127){
+                        custom.push(hslToRgb(color))
+                    }else{
+                        rest.push(hslToRgb(color))
+                    }
+                })
+            }
+
+
             setCustomShortcut(custom.map(color => {
                 return ConvertRGBtoHex(...color);
             }).map(color => {
@@ -100,7 +311,8 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
                 return ConvertRGBtoHex(...color);
             }))
         }
-    },[quantity,listOfColors,minG,minB,minS,minR,maxB,maxG,maxS,maxR]);
+
+    },[quantity,listOfColors,isBlueFiltered,isGreenFiltered,isSatFiltered,isRedFiltered]);
 
 
 
@@ -159,15 +371,19 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
                 ) : (
                     <>
                         <h1 className='list_title'>Your Conditions</h1>
+                        {customList.length !== 0 ? (
                         <ListElements basicColors={basicColors}
                                       ListOfColors={customList}
                                       setListOfColors={setCustomList}
                                       shortcut={customShortcut}/>
+                            ) : <h3>No matches...</h3>}
                         <h1 className='list_title'>Other Colors</h1>
+                        {restList.length !== 0 ? (
                         <ListElements basicColors={basicColors}
                                       ListOfColors={restList}
                                       setListOfColors={setRestList}
                                       shortcut={restShortcut}/>
+                            ) : <h3>No matches...</h3>}
                     </>
             )}
         </main>
