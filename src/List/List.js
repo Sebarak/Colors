@@ -374,14 +374,14 @@ const List = ({basicColors, quantity, isRedFiltered, isSatFiltered, isBlueFilter
                         {customList.length !== 0 ? (
                         <ListElements basicColors={basicColors}
                                       ListOfColors={customList}
-                                      setListOfColors={setCustomList}
+                                      setListOfColors={setListOfColors}
                                       shortcut={customShortcut}/>
                             ) : <h3>No matches...</h3>}
                         <h1 className='list_title'>Other Colors</h1>
                         {restList.length !== 0 ? (
                         <ListElements basicColors={basicColors}
                                       ListOfColors={restList}
-                                      setListOfColors={setRestList}
+                                      setListOfColors={setListOfColors}
                                       shortcut={restShortcut}/>
                             ) : <h3>No matches...</h3>}
                     </>

@@ -1,7 +1,10 @@
 const ListElements = ({ListOfColors, basicColors, shortcut, setListOfColors}) => {
 
     const handleDelete = (event) => {
-        const newArrayOfColors = ListOfColors.filter(color => {
+
+        const storageList = JSON.parse(localStorage.getItem('Colors'))
+
+        const newArrayOfColors = storageList.filter(color => {
             return color !== event.target.dataset.color;
         })
 
